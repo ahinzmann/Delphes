@@ -48,7 +48,7 @@ void GeneralExample(const char *inputFile, const char *outputFile)
   TClonesArray *branchPuppiMissingET = treeReader->UseBranch("PuppiMissingET");
 
 
-  bool verbose = true;
+  bool verbose = false;
   bool listJetTowers = false;
   bool listMET = true;
   bool listRho = false;
@@ -150,11 +150,11 @@ void GeneralExample(const char *inputFile, const char *outputFile)
       cout <<  "  True primary vertex X Y Z T: " << part->X << " " << part->Y << " " << part->Z << " " << part->T << endl;
     }
 
-    // Status code 3 (+high pt leptons, b+t quarks, etc)  particle collection
+    // Status code 3 particle collection
     if (verbose && branchGenParticle) {
       for (int i = 0 ; i < branchGenParticle->GetEntries() ; i++ ) {
 	GenParticle *part = (GenParticle*) branchGenParticle->At(i);
-	cout << "     Status code" << part->Status << " generator particle PID Pt Eta Phi Z T (at origin) "  << part->PID << " "
+	cout << "     Status code 3 generator particle PID Pt Eta Phi Z T (at origin) "  << part->PID << " "
 	     << part->PT << " " << part->Eta << " " << part->Phi << " " << part->Z << " " << part->T << endl;
       }
     }
@@ -164,13 +164,6 @@ void GeneralExample(const char *inputFile, const char *outputFile)
       for (int i = 0 ; i < branchElectron->GetEntries() ; i++) {
 	Electron *ele = (Electron*) branchElectron->At(i);
 	cout << "    Electron " << i << ": PT Eta Phi Isolation " << ele->PT << " " << ele->Eta << " " << ele->Phi << " " << ele->IsolationVar << endl;
-	GenParticle *part = (GenParticle*) ele->Particle.GetObject();
-	if (part) {
-	  cout << "      Electron matches to generated particle with Status code" << part->Status << " generator particle PID Pt Eta Phi Z T (at origin) "  << part->PID << " "
-	       << part->PT << " " << part->Eta << " " << part->Phi << " " << part->Z << " " << part->T << endl;
-	} else {
-	  cout << "      Electron does not match to a generated particle" << endl;
-	}
       }
 
       for (int i = 0 ; i < branchPhoton->GetEntries() ; i++) {

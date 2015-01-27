@@ -1,13 +1,12 @@
-
 /** \class ParticlePropagator
  *
  *  Propagates charged and neutral particles
- *  from a given vertex to a cylinder defined by its radius,
+ *  from a given vertex to a cylinder defined by its radius, 
  *  its half-length, centered at (0,0,0) and with its axis
  *  oriented along the z-axis.
  *
- *  $Date: 2014-04-16 16:08:33 +0200 (Wed, 16 Apr 2014) $
- *  $Revision: 1367 $
+ *  $Date: 2013-02-12 15:13:59 +0100 (Tue, 12 Feb 2013) $
+ *  $Revision: 907 $
  *
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve
@@ -15,6 +14,8 @@
  */
 
 #include "modules/ParticlePropagator.h"
+
+//#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include "classes/DelphesClasses.h"
 #include "classes/DelphesFactory.h"
@@ -32,10 +33,17 @@
 #include "TDatabasePDG.h"
 #include "TLorentzVector.h"
 
-#include <algorithm>
+#include <algorithm> 
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+
+static const double mm  = 1.;
+static const double m = 1000.*mm;
+static const double ns  = 1.;
+static const double s = 1.e+9 *ns;
+static const double c_light   = 2.99792458e+8 * m/s;
+
 
 using namespace std;
 
@@ -60,8 +68,10 @@ void ParticlePropagator::Init()
   fRadius2 = fRadius*fRadius;
   fHalfLength = GetDouble("HalfLength", 3.0);
   fBz = GetDouble("Bz", 0.0);
+  fKeepPileUp = GetInt("KeepPileUp",1);
+
   if(fRadius < 1.0E-2)
-  {
+  { 
     cout << "ERROR: magnetic field radius is too low\n";
     return;
   }
@@ -105,18 +115,26 @@ void ParticlePropagator::Process()
   Double_t t_z, t_r, t_ra, t_rb;
   Double_t tmp, discr, discr2;
   Double_t delta, gammam, omega, asinrho;
-  Double_t ang_mom, rcu, rc2, dxy, xd, yd, zd;
-  
-  const Double_t c_light = 2.99792458E8;
 
+  float t_orig;
+  
+  //  const Double_t c_light = 2.99792458E8;
+    
   fItInputArray->Reset();
   while((candidate = static_cast<Candidate*>(fItInputArray->Next())))
   {
+
+    // For no pileup samples...
+    if (fKeepPileUp == 0 && candidate->IsPU > 0) {
+      continue;
+    }
+
     candidatePosition = candidate->Position;
     candidateMomentum = candidate->Momentum;
     x = candidatePosition.X()*1.0E-3;
     y = candidatePosition.Y()*1.0E-3;
     z = candidatePosition.Z()*1.0E-3;
+    t_orig = candidatePosition.T(); // this should already be in ns; if not, fix it!
     q = candidate->Charge;
 
     // check that particle position is inside the cylinder
@@ -142,7 +160,7 @@ void ParticlePropagator::Process()
       // solve pt2*t^2 + 2*(px*x + py*y)*t + (fRadius2 - x*x - y*y) = 0
       tmp = px*y - py*x;
       discr2 = pt2*fRadius2 - tmp*tmp;
-
+      
       if(discr2 < 0)
       {
         // no solutions
@@ -153,14 +171,14 @@ void ParticlePropagator::Process()
       discr = TMath::Sqrt(discr2);
       t1 = (-tmp + discr)/pt2;
       t2 = (-tmp - discr)/pt2;
-      t = (t1 < 0) ? t2 : t1;
+      t = (t1 < 0) ? t2 : t1; 
 
       z_t = z + pz*t;
       if(TMath::Abs(z_t) > fHalfLength)
       {
         t3 = (+fHalfLength - z) / pz;
         t4 = (-fHalfLength - z) / pz;
-        t = (t3 < 0) ? t4 : t3;
+        t = (t3 < 0) ? t4 : t3; 
       }
 
       x_t = x + px*t;
@@ -170,13 +188,31 @@ void ParticlePropagator::Process()
       mother = candidate;
       candidate = static_cast<Candidate*>(candidate->Clone());
 
-      candidate->Position.SetXYZT(x_t*1.0E3, y_t*1.0E3, z_t*1.0E3, candidatePosition.T() + t*e*1.0E3);
+      // In the neutral part of the code, t has units of m / GeV
+      // This is some parameterization of the path, but not the time in any way that's obvious to me (S. Zenz)
+      // Probably easiest to recompute the time from the (straight-line) distance travelled...
+      t = 1E9*(1/c_light)*TMath::Sqrt((x_t-x)*(x_t-x)+(y_t-y)*(y_t-y)+(z_t-z)*(z_t-z)); // 1E9/c_light converts meters --> ns
+      //      if (pt > 1.) {
+      //	cout << " SCZ NEUTRAL Debug t t_orig " << t << " " << t_orig << endl;
+      //      }
+      t += t_orig;
+
+      candidate->Position.SetXYZT(x_t*1.0E3, y_t*1.0E3, z_t*1.0E3, t);
 
       candidate->Momentum = candidateMomentum;
       candidate->AddCandidate(mother);
+      
+      /*
+      cout << "In ParticlePropogator. Have just added neutral candidate with X Y Z T " << candidate->Position.X() << " " << candidate->Position.Y() << " "
+	   << candidate->Position.Z() << " " << candidate->Position.T() << " " << endl;
+      Candidate *prt = static_cast<Candidate*>(candidate->GetCandidates()->Last());
+      const TLorentzVector &ini = prt->Position;
+      cout << "                                                   Mother has X Y Z T " << ini.X() << " " << ini.Y() << " " << ini.Z() << " " << ini.T() << endl;
+      */
+
 
       fOutputArray->Add(candidate);
-      if(TMath::Abs(q) > 1.0E-9)
+      if(TMath::Abs(q) > 1.0E-9) 
       {
         switch(TMath::Abs(candidate->PID))
         {
@@ -195,14 +231,14 @@ void ParticlePropagator::Process()
     {
 
       // 1.  initial transverse momentum p_{T0} : Part->pt
-      //     initial transverse momentum direction \phi_0 = -atan(p_X0/p_Y0)
+      //     initial transverse momentum direction \phi_0 = -atan(p_X0/p_Y0) 
       //     relativistic gamma : gamma = E/mc² ; gammam = gamma \times m
       //     giration frequency \omega = q/(gamma m) fBz
       //     helix radius r = p_T0 / (omega gamma m)
 
       gammam = e*1.0E9 / (c_light*c_light);      // gammam in [eV/c²]
-      omega = q * fBz / (gammam);                // omega is here in [ 89875518 / s]
-      r = pt / (q * fBz) * 1.0E9/c_light;        // in [m]
+      omega = q * fBz / (gammam);                // omega is here in [ 89875518 / s]  
+      r = pt / (q * fBz) * 1.0E9/c_light;        // in [m]  
 
       phi_0 = TMath::ATan2(py, px); // [rad] in [-pi; pi]
 
@@ -214,25 +250,10 @@ void ParticlePropagator::Process()
       phi = phi_c;
       if(x_c < 0.0) phi += TMath::Pi();
 
-      rcu = TMath::Abs(r);
-      rc2 = r_c*r_c;
-     
-      // calculate coordinates of closest approach to track circle in transverse plane xd, yd, zd
-      xd = x_c*x_c*x_c - x_c*rcu*r_c + x_c*y_c*y_c; 
-      xd  = ( rc2 > 0.0 ) ? xd / rc2 : -999;
-      yd  = y_c*(-rcu*r_c + rc2);
-      yd  = ( rc2 > 0.0 ) ? yd / rc2 : -999;
-      zd  = z + (TMath::Sqrt(xd*xd+yd*yd) - TMath::Sqrt(x*x+y*y))*pz/pt;
-
-      // calculate impact paramater
-      ang_mom = (xd*py - yd*px);
-      dxy = ang_mom/pt;
-    
-         
       // 3. time evaluation t = TMath::Min(t_r, t_z)
       //    t_r : time to exit from the sides
       //    t_z : time to exit from the front or the back
-      t_r = 0.0; // in [ns]
+      t_r = 0.0; // this is in s in this part of the code, I think...?
       int sign_pz = (pz > 0.0) ? 1 : -1;
       if(pz == 0.0) t_z = 1.0E99;
       else t_z = gammam / (pz*1.0E9/c_light) * (-z + fHalfLength*sign_pz);
@@ -265,7 +286,7 @@ void ParticlePropagator::Process()
         t_ra = TMath::Min(t1, TMath::Min(t2, t3));
         t_rb = TMath::Min(t4, TMath::Min(t5, t6));
         t_r = TMath::Min(t_ra, t_rb);
-        t = TMath::Min(t_r, t_z);
+        t = TMath::Min(t_r, t_z); 
       }
 
       // 4. position in terms of x(t), y(t), z(t)
@@ -279,20 +300,39 @@ void ParticlePropagator::Process()
         mother = candidate;
         candidate = static_cast<Candidate*>(candidate->Clone());
 
-        candidate->Position.SetXYZT(x_t*1.0E3, y_t*1.0E3, z_t*1.0E3, candidatePosition.T() + t*c_light*1.0E3);
+	//	if (pt > 1.) {
+	  //			  cout << " SCZ CHARGED Debug: t_r t_z t 1E9*t t_orig " << t_r << " " << t_z << " " << t << " "  << 1E9*t << " " << t_orig << endl;
+	  //	                  cout << "   SCZ Debug line2: pt pz x y z " << pt << " " << pz << " " << x << " " << y << " " << z << endl;
+	  //	}
+	t = 1E9*t + t_orig; // Delphes had omega in inverse s, so 1E9 converts to ns
+
+	//	cout << " Original (z,t)=(" << z << ", " << t_orig << ") - New (z,t)=(" << z_t*1.0E3 << ", " << t << ")" << endl;
+
+        candidate->Position.SetXYZT(x_t*1.0E3, y_t*1.0E3, z_t*1.0E3, t);
 
         candidate->Momentum = candidateMomentum;
-	//	candidate->Xd = xd*1.0E3; 
-	//	candidate->Yd = yd*1.0E3;
-	//        candidate->Zd = zd*1.0E3;
-	
-	candidate->AddCandidate(mother);
+        candidate->AddCandidate(mother);
+
+	/*
+	cout << "In ParticlePropogator. Have just added charged candidate with X Y Z T " << candidate->Position.X() << " " << candidate->Position.Y() << " "
+	     << candidate->Position.Z() << " " << candidate->Position.T() << " " << endl;
+	Candidate *prt = static_cast<Candidate*>(candidate->GetCandidates()->Last());
+	const TLorentzVector &ini = prt->Position;
+	cout << "                                                   Mother has X Y Z T " << ini.X() << " " << ini.Y() << " " << ini.Y() << " " << ini.Z() << endl;
+	*/
 
         fOutputArray->Add(candidate);
         switch(TMath::Abs(candidate->PID))
         {
           case 11:
             fElectronOutputArray->Add(candidate);
+	    /*
+	    if (pt > 0.5) {
+  	      double t_straight = t_orig + 1E9*(1/c_light)*TMath::Sqrt((x_t-x)*(x_t-x)+(y_t-y)*(y_t-y)+(z_t-z)*(z_t-z)); // 1E9/c_light converts meters --> ns
+              cout << " SCZ Debug ParticlePropogator pt t_orig t_straight t IsPU PID " << pt << " " << t_orig << " " << t_straight << " "
+		   << t << " " << candidate->IsPU << " " << candidate->PID << endl;
+	    }
+	    */
             break;
           case 13:
             fMuonOutputArray->Add(candidate);
@@ -306,4 +346,3 @@ void ParticlePropagator::Process()
 }
 
 //------------------------------------------------------------------------------
-

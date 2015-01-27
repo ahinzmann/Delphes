@@ -68,9 +68,6 @@ set ExecutionPath {
   BTaggingLoose
   TauTagging
 
-  TrackPVSubtractor  
-  IsoTrackFilter
-
   UniqueObjectFinderGJ
   UniqueObjectFinderEJ
   UniqueObjectFinderMJ
@@ -277,7 +274,7 @@ module StatusPidFilter StatusPid {
     set InputArray Delphes/allParticles
     set OutputArray filteredParticles
 
-    set PTMin 1.0
+    set PTMin 0.5
 }
 
 #######################
@@ -1236,46 +1233,6 @@ module BTagging BTaggingLoose {
 
 }
 
-##########################
-# Track pile-up subtractor
-##########################
-
-module TrackPileUpSubtractor TrackPVSubtractor {
-# add InputArray InputArray OutputArray
-  add InputArray ChargedHadronMomentumSmearing/chargedHadrons chargedHadrons
-  add InputArray ElectronEnergySmearing/electrons electrons
-  add InputArray MuonMomentumSmearing/muons muons
-
-  set PVInputArray  ModifyBeamSpot/PV
-
-  # assume perfect pile-up subtraction for tracks with |z| > fZVertexResolution
-  # Z vertex resolution in m
-  set ZVertexResolution 0.0005
-}
-
-
-################
-# Isolated Tracks 
-################
-module IsoTrackFilter IsoTrackFilter {
-  ## Isolation using all the tracks
-  set ElectronInputArray TrackPVSubtractor/electrons
-  set MuonInputArray TrackPVSubtractor/muons
-  set HADInputArray TrackPVSubtractor/chargedHadrons
-
-  set OutputArray IsoTrack
-
-  ### Cone 0.3
-  set DeltaRMax 0.3
-
-  ## PTmin of isolation 
-  set PTMin 1
-
-  set PTRatioMax 0.2
-
-  set IsoTrackPTMin 5
-}
-
 
 module TauTagging TauTagging {
   set ParticleInputArray Delphes/allParticles
@@ -1381,11 +1338,10 @@ module TreeWriter TreeWriter {
   add Branch Rho/rho Rho Rho
   add Branch GlobalRho/rho GlobalRho Rho
   add Branch PileUpMerger/NPU NPU ScalarHT
-  add Branch IsoTrackFilter/IsoTrack IsoTrack IsoTrack
 
   add Branch PuppiJetFinder/jets PuppiJet Jet
 
-  set OffsetFromModifyBeamSpot 0
+  set OffsetFromModifyBeamSpot 1
 }
 
 # # add Branch InputArray BranchName BranchClass

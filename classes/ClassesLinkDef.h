@@ -43,7 +43,6 @@
 #pragma link C++ class Jet+;
 #pragma link C++ class Track+;
 #pragma link C++ class Tower+;
-#pragma link C++ class IsoTrack+;
 
 #pragma link C++ class Candidate+;
 

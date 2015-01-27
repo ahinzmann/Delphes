@@ -33,8 +33,6 @@ set ExecutionPath {
   FastJetFinder
   CAJetFinder
 
-  IsoTrackFilter
-
   UniqueObjectFinderGJ
   UniqueObjectFinderEJ
   UniqueObjectFinderMJ
@@ -82,7 +80,7 @@ module StatusPidFilter StatusPid {
     set InputArray Delphes/allParticles
     set OutputArray filteredParticles
 
-    set PTMin 1.0
+    set PTMin 0.5
 }
 
 
@@ -386,7 +384,7 @@ module Isolation ElectronIsolation {
 
   set DeltaRMax 0.3
 
-  set PTMin 1.0
+  set PTMin 0.5
 
   set PTRatioMax 0.4
 }
@@ -423,34 +421,10 @@ module Isolation MuonIsolation {
 
   set DeltaRMax 0.3
 
-  set PTMin 1.0
+  set PTMin 0.5
 
   set PTRatioMax 0.4
 }
-
-################
-# Isolated Tracks
-################
-module IsoTrackFilter IsoTrackFilter {
-  ## Isolation using all the tracks
-  set ElectronInputArray ElectronEnergySmearing/electrons
-  set MuonInputArray MuonMomentumSmearing/muons
-  set HADInputArray ChargedHadronMomentumSmearing/chargedHadrons
-
-  set OutputArray IsoTrack
-
-  ### Cone 0.3
-  set DeltaRMax 0.3
-
-  ## PTmin of isolation 
-  set PTMin 1
-
-  set PTRatioMax 0.2
-
-  set IsoTrackPTMin 5
-}
-
-
 
 ###################
 # Missing ET merger
@@ -687,7 +661,6 @@ module TreeWriter TreeWriter {
   add Branch UniqueObjectFinderEJ/electrons Electron Electron
   add Branch UniqueObjectFinderGJ/photons Photon Photon
   add Branch UniqueObjectFinderMJ/muons Muon Muon
-  add Branch IsoTrackFilter/IsoTrack IsoTrack IsoTrack
   add Branch MissingET/momentum MissingET MissingET
   add Branch ScalarHT/energy ScalarHT ScalarHT
 }
