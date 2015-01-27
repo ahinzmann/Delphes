@@ -1,6 +1,9 @@
 //          ./Analysis delphes_output.root outfile.root
 
-
+extern double PTmedian_first;
+double PTmedian_second;
+double PTmedian_third;
+double PTmedian_fourth;
 
 //remember to add your plots here
 struct MyPlots
@@ -35,6 +38,16 @@ struct MyPlots
   
   TH2 *h_IPversusTrackPt;
   
+  TH1 *hBJetEta_first;
+  TH1 *hBJetEta_second;
+  TH1 *hBJetEta_third;
+  TH1 *hBJetEta_fourth;
+
+  TH1 *hBJetPT_Etafirst;
+  TH1 *hBJetPT_Etasecond;
+  TH1 *hBJetPT_Etathird;
+  TH1 *hBJetPT_Etafourth;
+
   
 };
 
@@ -127,124 +140,172 @@ void BookHistograms(ExRootResult *result, MyPlots *plots)
   THStack *stack;
   THStack *stack2;
   THStack *stack3;
+  THStack *stack_Bjets_eta;
   TLegend *legend;
   TLegend *legend2;
-// TPaveText *comment;
+  // TPaveText *comment;
   
   // AddHist1D(name, title, xlabel, ylabel, nxbins, xmin, xmax
   plots->hJetBDeltaR = result->AddHist1D(
-    "hJetBDeltaR", "#DeltaR_{jet, b quark}",
-    "#DeltaR_{jet, quark}", "number of jets",
-      100, 0., 0.6);
+					 "hJetBDeltaR", "#DeltaR_{jet, b quark}",
+					 "#DeltaR_{jet, quark}", "number of jets",
+					 100, 0., 0.6);
   
   plots->hJetTrackDeltaR = result->AddHist1D(
-    "hJetTrackDeltaR", "#DeltaR_{jet, track}",
-    "R^{jet} - R^{track})", "number of jets",
-     100, 0., 0.6);
+					     "hJetTrackDeltaR", "#DeltaR_{jet, track}",
+					     "R^{jet} - R^{track})", "number of jets",
+					     100, 0., 0.6);
   
   plots->hJetEta = result->AddHist1D(
-    "jetEta", "Jet Eta",
-    "Jet eta", "number of jets",
-    100, -2.5, 2.5);
+				     "jetEta", "Jet Eta",
+				     "Jet eta", "number of jets",
+				     100, -2.5, 2.5);
   
   plots->hBJetPt = result->AddHist1D(
-    "hBJetPt", "b-jet p_{T}",
-    "p_{T}", "number of jets",
-    100, 20., 1000.);
+				     "hBJetPt", "b-jet p_{T}",
+				     "p_{T}", "number of jets",
+				     100, 20., 1000.);
     
-      plots->hBJetEta = result->AddHist1D(
-    "hBJetEta", "b-jet #eta",
-    "#eta", "number of jets",
-    100, -2.5, 2.5);
-    
-    plots->hBQuarkEta = result->AddHist1D(
-    "hBQuarkEta", "b-quark #eta",
-    "#eta", "number of b quarks",
-    100, -2.5, 2.5);
+  plots->hBJetEta = result->AddHist1D(
+				      "hBJetEta", "b-jet #eta",
+				      "#eta", "number of jets",
+				      100, -2.5, 2.5);
+  
+  plots->hBQuarkEta = result->AddHist1D(
+					"hBQuarkEta", "b-quark #eta",
+					"#eta", "number of b quarks",
+					100, -2.5, 2.5);
   
   plots->hParticleEta = result->AddHist1D(
-    "hParticleEta", "Gen Particle Eta",
-    "Particle eta","number of jets",
-    100, -2.5, 2.5);
+					  "hParticleEta", "Gen Particle Eta",
+					  "Particle eta","number of jets",
+					  100, -2.5, 2.5);
   
   plots->hBJetIP = result->AddHist1D(
-    "hBJetIP", "b-jet track IP",
-    "b-jet track IP","number of tracks",
-    400, -0.2, 0.2);
+				     "hBJetIP", "b-jet track IP",
+				     "b-jet track IP","number of tracks",
+				     400, -0.2, 0.2);
   
   plots->hCJetIP = result->AddHist1D(
-    "hCJetIP", "c-jet track IP",
-    "c-jet track IP","number of tracks",
-  400, -0.2, 0.2);  
-  plots->hLightJetIP = result->AddHist1D(
-    "hLightJetIP", "Light jet track IP",
-    "Light jet track IP","number of tracks",
-  400, -0.2, 0.2);    
+				     "hCJetIP", "c-jet track IP",
+				     "c-jet track IP","number of tracks",
+				     400, -0.2, 0.2);  
 
-plots->h_bJetTrackPt = result->AddHist1D(
-    "h_bJetTrackPt", "b-jet track p_{T}",
-    "Track p_{T}","number of tracks",
-    60, 0., 60.);
+  plots->hLightJetIP = result->AddHist1D(
+					 "hLightJetIP", "Light jet track IP",
+					 "Light jet track IP","number of tracks",
+					 400, -0.2, 0.2);    
+
+  plots->h_bJetTrackPt = result->AddHist1D(
+					   "h_bJetTrackPt", "b-jet track p_{T}",
+					   "Track p_{T}","number of tracks",
+					   60, 0., 60.);
     
-    plots->h_bJetLeadingTrackPt = result->AddHist1D(
-    "h_bJetLeadingTrackPt", "b-jet leading track p_{T}",
-    "Leading track p_{T}","number of tracks",
-    300, 0., 60.);   
-    
-    plots->h_bJetTrackMultiplicity = result->AddHist1D(
-    "h_bJetTrackMultiplicity", "b-jet track multiplicity",
-    "Track multiplicity","number of jets",
-    300, 0., 25.); 
-    
-        plots->hLightJetIP_first = result->AddHist1D(
-    "hLightJetIP_first", "Light-jet first track IP",
-    "track IP","number of tracks",
-      400, -0.2, 0.2);
-      
-          plots->hLightJetIP_second = result->AddHist1D(
-    "hLightJetIP_second", "Light-jet second track IP",
-    "track IP","number of tracks",
-      400, -0.2, 0.2);
+  plots->h_bJetLeadingTrackPt = result->AddHist1D(
+						  "h_bJetLeadingTrackPt", "b-jet leading track p_{T}",
+						  "Leading track p_{T}","number of tracks",
+						  300, 0., 60.);   
   
-    plots->hLightJetIP_third = result->AddHist1D(
-    "hLightJetIP_third", "Light-jet third track IP",
-    "track IP","number of tracks",
-     400, -0.2, 0.2);
-      
-          plots->hCJetIP_first = result->AddHist1D(
-    "hCJetIP_first", "c-jet first track IP",
-    "track IP","number of tracks",
-      400, -0.2, 0.2);
-      
-          plots->hCJetIP_second = result->AddHist1D(
-    "hCJetIP_second", "c-jet second track IP",
-    "track IP","number of tracks",
-      400, -0.2, 0.2);
-  
-    plots->hCJetIP_third = result->AddHist1D(
-    "hCJetIP_third", "c-jet third track IP",
-    "track IP","number of tracks",
-     400, -0.2, 0.2);
-      
-    plots->hBJetIP_first = result->AddHist1D(
-    "hBJetIP_first", "b-jet first track IP",
-    "track IP","number of tracks",
-      400, -0.2, 0.2);
+  plots->h_bJetTrackMultiplicity = result->AddHist1D(
+						     "h_bJetTrackMultiplicity", "b-jet track multiplicity",
+						     "Track multiplicity","number of jets",
+						     300, 0., 25.); 
     
-    plots->hBJetIP_second = result->AddHist1D(
-    "hBJetIP_second", "b-jet second track IP",
-    "track IP","number of tracks",
-      400, -0.2, 0.2);
+  plots->hLightJetIP_first = result->AddHist1D(
+					       "hLightJetIP_first", "Light-jet first track IP",
+					       "track IP","number of tracks",
+					       400, -0.2, 0.2);
+      
+  plots->hLightJetIP_second = result->AddHist1D(
+						"hLightJetIP_second", "Light-jet second track IP",
+						"track IP","number of tracks",
+						400, -0.2, 0.2);
   
-    plots->hBJetIP_third = result->AddHist1D(
-    "hBJetIP_third", "b-jet third track IP",
-    "track IP","number of tracks",
-     400, -0.2, 0.2);
+  plots->hLightJetIP_third = result->AddHist1D(
+					       "hLightJetIP_third", "Light-jet third track IP",
+					       "track IP","number of tracks",
+					       400, -0.2, 0.2);
+  
+  plots->hCJetIP_first = result->AddHist1D(
+					   "hCJetIP_first", "c-jet first track IP",
+					   "track IP","number of tracks",
+					   400, -0.2, 0.2);
+  
+  plots->hCJetIP_second = result->AddHist1D(
+					    "hCJetIP_second", "c-jet second track IP",
+					    "track IP","number of tracks",
+					    400, -0.2, 0.2);
+  
+  plots->hCJetIP_third = result->AddHist1D(
+					   "hCJetIP_third", "c-jet third track IP",
+					   "track IP","number of tracks",
+					   400, -0.2, 0.2);
+  
+  plots->hBJetIP_first = result->AddHist1D(
+					   "hBJetIP_first", "b-jet first track IP",
+					   "track IP","number of tracks",
+					   400, -0.2, 0.2);
+  
+  plots->hBJetIP_second = result->AddHist1D(
+					    "hBJetIP_second", "b-jet second track IP",
+					    "track IP","number of tracks",
+					    400, -0.2, 0.2);
+  
+  plots->hBJetIP_third = result->AddHist1D(
+					   "hBJetIP_third", "b-jet third track IP",
+					   "track IP","number of tracks",
+					   400, -0.2, 0.2);
+
   
   plots->hBJetIP->SetLineColor(kRed);
   plots->hLightJetIP->SetLineColor(kBlue);
   plots->hLightJetIP->SetLineColor(kGreen);
+
+
+  plots->hBJetEta_first = result->AddHist1D(
+					       "hBJetEta_first", "B-jet first eta",
+					       "eta","number of tracks",
+					       100, -2.5, 2.5);
+      
+  plots->hBJetEta_second = result->AddHist1D(
+						"hBJetEta_second", "B-jet second eta",
+						"eta","number of tracks",
+						100, -2.5, 2.5);
   
+  plots->hBJetEta_third = result->AddHist1D(
+					       "hBJetEta_third", "B-jet third eta",
+					       "eta","number of tracks",
+					       100, -2.5, 2.5);
+
+  plots->hBJetEta_fourth = result->AddHist1D(
+					       "hBJetEta_fourth", "B-jet third eta",
+					       "eta","number of tracks",
+					       100, -2.5, 2.5);
+ 
+  
+
+
+  plots->hBJetPT_Etafirst = result->AddHist1D(
+					       "hBJetPT_Etafirst", "B-jet Pt first eta",
+					       "eta","number of tracks",
+					       80, 20., 1000.);
+      
+  plots->hBJetPT_Etasecond = result->AddHist1D(
+						"hBJetPT_Etasecond", "B-jet Pt second eta",
+						"eta","number of tracks",
+						80, 20., 1000.);
+  
+  plots->hBJetPT_Etathird = result->AddHist1D(
+					       "hBJetPT_Etathird", "B-jet Pt third eta",
+					       "eta","number of tracks",
+					       80, 20., 1000.);
+
+  plots->hBJetPT_Etafourth = result->AddHist1D(
+					       "hBJetPT_Etafourth", "B-jet Pt third eta",
+					       "eta","number of tracks",
+					       80, 20., 1000.);
+ 
+ 
   // book 1 stack of 2 histograms
   
   stack = result->AddHistStack("IP all tracks b, c, light", "IP for b, c and light");
@@ -268,6 +329,24 @@ plots->h_bJetTrackPt = result->AddHist1D(
   stack3->Add(plots->hBJetIP_first);
   stack3->Add(plots->hCJetIP_first);
   stack3->Add(plots->hLightJetIP_first);
+
+
+  plots->hBJetEta_first->SetLineColor(kRed);
+  plots->hBJetEta_second->SetLineColor(kBlue);
+  plots->hBJetEta_third->SetLineColor(kGreen);
+  plots->hBJetEta_fourth->SetLineColor(kMagenta);
+
+  plots->hBJetPT_Etafirst->SetLineColor(kRed);
+  plots->hBJetPT_Etasecond->SetLineColor(kBlue);
+  plots->hBJetPT_Etathird->SetLineColor(kGreen);
+  plots->hBJetPT_Etafourth->SetLineColor(kMagenta);
+  
+  stack_Bjets_eta = result->AddHistStack("Leading B-jet in Eta", "Leading b-jet eta ");
+  stack_Bjets_eta->Add(plots->hBJetEta_first);
+  stack_Bjets_eta->Add(plots->hBJetEta_second);
+  stack_Bjets_eta->Add(plots->hBJetEta_third);
+  stack_Bjets_eta->Add(plots->hBJetEta_fourth);
+
   
   legend2 = result->AddLegend(0.72, 0.86, 0.98, 0.98);
   legend2->AddEntry(plots->hBJetIP_first, "First", "f");
@@ -282,13 +361,16 @@ plots->h_bJetTrackPt = result->AddHist1D(
   legend->AddEntry(plots->hBJetIP, "b", "l");
   legend->AddEntry(plots->hCJetIP, "c ", "l");
   legend->AddEntry(plots->hLightJetIP, "light ", "l");
-  
-  
+    
   // attach legend to stack (legend will be printed over stack in .eps file)
   
   result->Attach(stack, legend);
-  
+
+
 }
+
+
+
 
 //------------------------------------------------------------------------------
 void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
@@ -340,155 +422,193 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
   // Loop over events
   //     for(entry = 0; entry < 1; ++entry)
   for(entry = 0; entry < allEntries; ++entry)
-  {
-    // Load selected branches with data from specified event
-    treeReader->ReadEntry(entry);
-    
-    
-    
-    // Loop over all jets in event
-    for(i = 0; i < branchJet->GetEntriesFast(); ++i)
     {
-      Double_t PartonJetdR = -1;
+      // Load selected branches with data from specified event
+      treeReader->ReadEntry(entry);
       
-      pdgCodeMax = -1;
+      std::vector<std::pair<double,double>> eta_bjets;	       
       
-      jet = (Jet*) branchJet->At(i);
-      
-      //Apply cuts
-      if(jet->PT < pTMin || TMath::Abs(jet->Eta) > etaMax || TMath::Abs(jet->Eta) < etaMin ) continue;
-      
-      //Define a jet 3-vector
-      vJet.SetPtEtaPhi(jet->PT, jet->Eta, jet->Phi);
-      
-      plots->hJetEta->Fill(jet->Eta);
-      
-      
-      // Loop over GenParticles
-      for(j = 0; j < branchParticle->GetEntriesFast(); ++j)
-      {
-	particle = (GenParticle*)branchParticle->At(j);
-	
-	if(particle->PT < PartonPTMin || TMath::Abs(particle->Eta) > PartonEtaMax) continue;
-	
-	vParticle.SetPtEtaPhi(particle->PT, particle->Eta, particle->Phi);
-	
-	plots->hParticleEta->Fill(particle->Eta);
-	
-	// Get jet flavor
-	pdgCode = TMath::Abs(particle->PID);
-	if(pdgCode == 5) plots->hBQuarkEta->Fill(particle->Eta);
-	if(pdgCode != 21 && pdgCode > 5) continue;
-	if(pdgCode == 21) pdgCode = 0;	  
-	
-	Double_t dR = DeltaR(vParticle, vJet);
-	if(dR < PartondRmin)
+      // Loop over all jets in event
+      for(i = 0; i < branchJet->GetEntriesFast(); ++i)
 	{
-	  if(pdgCodeMax < pdgCode){
-	    PartonJetdR = dR;
-	    pdgCodeMax = pdgCode;
-	  }
-	}
-      } 
+	  Double_t PartonJetdR = -1;
+	  
+	  pdgCodeMax = -1;
+	  
+	  jet = (Jet*) branchJet->At(i);
+	  
+	  //Apply cuts
+	  if(jet->PT < pTMin || TMath::Abs(jet->Eta) > etaMax || TMath::Abs(jet->Eta) < etaMin ) continue;
+	  
+	  //Define a jet 3-vector
+	  vJet.SetPtEtaPhi(jet->PT, jet->Eta, jet->Phi);
+	  
+	  plots->hJetEta->Fill(jet->Eta);
       
-      if(pdgCodeMax == 0) pdgCodeMax = 21;
-      if(pdgCodeMax == -1) pdgCodeMax = 0;
-      
-      if( (pdgCodeMax != 21 && pdgCodeMax > 5) || pdgCodeMax == 0 ) continue;
-      
-      // If b jet
-      if(pdgCodeMax == 5)
-      {	  
-	plots->hJetBDeltaR->Fill(PartonJetdR);
-	plots->hBJetEta->Fill(jet->Eta);
-	plots->hBJetPt->Fill(jet->PT);
-	
-      }
-      
-      trackpTMax = -1;
-      Int_t NrTracks = 0;
-      
-      std::vector<double> IP;
-      
-      // Loop over tracks
-      for(k = 0; k < branchEFlowTrack->GetEntriesFast(); ++k)
-      {
-	track = (Track*)branchEFlowTrack->At(k);
-	if(track->PT < 1.0) continue;
-	
-	vTrack.SetPtEtaPhi(track->PT, track->Eta, track->Phi);
-	Double_t dR = DeltaR(vTrack, vJet);
-	
-	// Get highest pT track in jet cone
-	if(dR > dRmin)continue;
-	
-	Double_t dxyAllTracks = ComputeIP(track);
-	IP.push_back(dxyAllTracks);
-	
-	NrTracks +=1;
-	trackpT = track->PT;
-	plots->hJetTrackDeltaR->Fill(dR);
-	
-	if(pdgCodeMax == 5){
-		plots->h_bJetTrackPt->Fill(trackpT);
+
+
+
+	  // Loop over GenParticles
+	  for(j = 0; j < branchParticle->GetEntriesFast(); ++j)
+	    {
+	      particle = (GenParticle*)branchParticle->At(j);
+	      
+	      if(particle->PT < PartonPTMin || TMath::Abs(particle->Eta) > PartonEtaMax) continue;
+	      
+	      vParticle.SetPtEtaPhi(particle->PT, particle->Eta, particle->Phi);
+	      
+	      plots->hParticleEta->Fill(particle->Eta);
+	      
+	      // Get jet flavor
+	      pdgCode = TMath::Abs(particle->PID);
+	      if(pdgCode == 5) plots->hBQuarkEta->Fill(particle->Eta);
+	      
+	      if(pdgCode != 21 && pdgCode > 5) continue;
+	      if(pdgCode == 21) pdgCode = 0;	  
+	      
+	      Double_t dR = DeltaR(vParticle, vJet);
+	      if(dR < PartondRmin)
+		{
+		  if(pdgCodeMax < pdgCode){
+		    PartonJetdR = dR;
+		    pdgCodeMax = pdgCode;
+		  }
 		}
-		
-	if(trackpTMax < trackpT){
-	  trackpTMax = trackpT;
-	  LeadingTrack = track;
+	    } 
+	  
+	  if(pdgCodeMax == 0) pdgCodeMax = 21;
+	  if(pdgCodeMax == -1) pdgCodeMax = 0;
+	  
+	  if( (pdgCodeMax != 21 && pdgCodeMax > 5) || pdgCodeMax == 0 ) continue;
+	  
+	  // If b jet
+	  if(pdgCodeMax == 5)
+	    {	  
+	      plots->hJetBDeltaR->Fill(PartonJetdR);
+	      plots->hBJetEta->Fill(jet->Eta);
+	      plots->hBJetPt->Fill(jet->PT);
+	      
+	      std::pair <double,double> eta_pt = std::make_pair(jet->Eta, jet->PT);
+	      //std::cout << "foo: " << eta_pt.first << ", " << eta_pt.second << '\n';
+	      eta_bjets.push_back(eta_pt);
+	    }
+	  
+	  trackpTMax = -1;
+	  Int_t NrTracks = 0;
+	  
+	  std::vector<double> IP;
+	  
+	  // Loop over tracks
+	  for(k = 0; k < branchEFlowTrack->GetEntriesFast(); ++k)
+	    {
+	      track = (Track*)branchEFlowTrack->At(k);
+	      if(track->PT < 1.0) continue;
+	      
+	      vTrack.SetPtEtaPhi(track->PT, track->Eta, track->Phi);
+	      Double_t dR = DeltaR(vTrack, vJet);
+	      
+	      // Get highest pT track in jet cone
+	      if(dR > dRmin)continue;
+	      
+	      Double_t dxyAllTracks = ComputeIP(track);
+	      IP.push_back(dxyAllTracks);
+	      
+	      NrTracks +=1;
+	      trackpT = track->PT;
+	      plots->hJetTrackDeltaR->Fill(dR);
+	      
+	      if(pdgCodeMax == 5){
+		plots->h_bJetTrackPt->Fill(trackpT);
+	      }
+	      
+	      if(trackpTMax < trackpT){
+		trackpTMax = trackpT;
+		LeadingTrack = track;
+	      }
+	    }
+      
+	  std::sort(IP.begin(),IP.end());
+	  std::reverse(IP.begin(),IP.end());
+	  
+	  
+	  // calculate Impact parameter
+	  dxy = ComputeIP(LeadingTrack);
+	  
+	  // If b jet
+	  if(pdgCodeMax == 5)
+	    {	  
+	      plots->hBJetIP->Fill(dxy);  
+	      plots->h_bJetLeadingTrackPt->Fill(LeadingTrack->PT);
+	      plots->h_bJetTrackMultiplicity->Fill(NrTracks);
+	      
+	      if(IP.size()>0)plots->hBJetIP_first->Fill(IP[0]);  
+	      if(IP.size()>1)plots->hBJetIP_second->Fill(IP[1]);  
+	      if(IP.size()>2)plots->hBJetIP_third->Fill(IP[2]);  
+	      
+	      IP.clear();
+	      
+	    }
+	  
+	  // If c jet
+	  else if(pdgCodeMax == 4)
+	    {	  
+	      plots->hCJetIP->Fill(dxy);
+	      
+	      if(IP.size()>0)plots->hCJetIP_first->Fill(IP[0]);  
+	      if(IP.size()>1)plots->hCJetIP_second->Fill(IP[1]);  
+	      if(IP.size()>2)plots->hCJetIP_third->Fill(IP[2]);  
+	      
+	      IP.clear();
+	      
+	    }
+      
+	  // If light jet
+	  else if( (pdgCodeMax > 0) && pdgCodeMax <=3 || pdgCodeMax ==21 )
+	    {	  
+	      plots->hLightJetIP->Fill(dxy);
+	      
+	      if(IP.size()>0)plots->hLightJetIP_first->Fill(IP[0]);  
+	      if(IP.size()>1)plots->hLightJetIP_second->Fill(IP[1]);  
+	      if(IP.size()>2)plots->hLightJetIP_third->Fill(IP[2]);  
+	      
+	      IP.clear();
+	      
+	    }
+	  
 	}
-      }
+
+      std::sort(eta_bjets.begin(),eta_bjets.end());
+      std::reverse(eta_bjets.begin(),eta_bjets.end());
+
+      //std::cout << "number of bjets " << eta_bjets.size() << std:: endl;
+
+      //if (eta_bjets.size() > 0) std::cout << "eta bjet 1 " << eta_bjets[0].first << std::endl;
+      //if (eta_bjets.size() > 0) std::cout << "eta bjet 1 " << eta_bjets[0].second << std::endl;
+    
+      //if (eta_bjets.size() > 1) std::cout << "eta bjet 2 " << eta_bjets[1].first << std::endl;
+      //if (eta_bjets.size() > 1) std::cout << "eta bjet 2 " << eta_bjets[1].second << std::endl;
       
-      std::sort(IP.begin(),IP.end());
-      std::reverse(IP.begin(),IP.end());
+      //if (eta_bjets.size() > 2) std::cout << "eta bjet 3 " << eta_bjets[2].first << std::endl;
+      //if (eta_bjets.size() > 2) std::cout << "eta bjet 3 " << eta_bjets[2].second << std::endl;
+    
+      //if (eta_bjets.size() > 3) std::cout << "eta bjet 4 " << eta_bjets[3].first << std::endl;
+      //if (eta_bjets.size() > 3) std::cout << "eta bjet 4 " << eta_bjets[3].second << std::endl;
       
-      
-      // calculate Impact parameter
-      dxy = ComputeIP(LeadingTrack);
-      
-      // If b jet
-      if(pdgCodeMax == 5)
-      {	  
-	plots->hBJetIP->Fill(dxy);  
-	plots->h_bJetLeadingTrackPt->Fill(LeadingTrack->PT);
-	plots->h_bJetTrackMultiplicity->Fill(NrTracks);
-	
-	 if(IP.size()>0)plots->hBJetIP_first->Fill(IP[0]);  
-      if(IP.size()>1)plots->hBJetIP_second->Fill(IP[1]);  
-      if(IP.size()>2)plots->hBJetIP_third->Fill(IP[2]);  
-      
-      IP.clear();
-      
-      }
-      
-      // If c jet
-      else if(pdgCodeMax == 4)
-      {	  
-	plots->hCJetIP->Fill(dxy);
-	
-	if(IP.size()>0)plots->hCJetIP_first->Fill(IP[0]);  
-      if(IP.size()>1)plots->hCJetIP_second->Fill(IP[1]);  
-      if(IP.size()>2)plots->hCJetIP_third->Fill(IP[2]);  
-      
-      IP.clear();
-      
-      }
-      
-      // If light jet
-      else if( (pdgCodeMax > 0) && (pdgCodeMax <=3 || pdgCodeMax ==21) )
-      {	  
-	plots->hLightJetIP->Fill(dxy);
-	
-	if(IP.size()>0)plots->hLightJetIP_first->Fill(IP[0]);  
-    if(IP.size()>1)plots->hLightJetIP_second->Fill(IP[1]);  
-    if(IP.size()>2)plots->hLightJetIP_third->Fill(IP[2]);  
-      
-      IP.clear();
-      
-      }
-      
-    }	  
-  }
+     	  
+      if(eta_bjets.size()>0)plots->hBJetEta_first->Fill(eta_bjets[0].first);  
+      if(eta_bjets.size()>1)plots->hBJetEta_second->Fill(eta_bjets[1].first);  
+      if(eta_bjets.size()>2)plots->hBJetEta_third->Fill(eta_bjets[2].first);
+      if(eta_bjets.size()>3)plots->hBJetEta_fourth->Fill(eta_bjets[3].first);
+
+      if(eta_bjets.size()>0)plots->hBJetPT_Etafirst->Fill(eta_bjets[0].second);  
+      if(eta_bjets.size()>1)plots->hBJetPT_Etasecond->Fill(eta_bjets[1].second);  
+      if(eta_bjets.size()>2)plots->hBJetPT_Etathird->Fill(eta_bjets[2].second);
+      if(eta_bjets.size()>3)plots->hBJetPT_Etafourth->Fill(eta_bjets[3].second);
+
+    
+
+    }
+
   plots->hBJetIP->Scale(1./plots->hBJetIP->Integral());
   plots->hCJetIP->Scale(1./plots->hCJetIP->Integral());
   plots->hLightJetIP->Scale(1./plots->hLightJetIP->Integral());
@@ -497,12 +617,23 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
   plots->hCJetIP_first->Scale(1./plots->hCJetIP_first->Integral());
   plots->hBJetIP_first->Scale(1./plots->hBJetIP_first->Integral());
   
-	std::cout <<plots->hLightJetIP->ClassName()<<std::endl;
+  std::cout <<plots->hLightJetIP->ClassName()<<std::endl;
   Double_t median = GetMedian(plots->h_bJetTrackPt);
   
   std::cout<<"Median b-jetTrackPt"<<median<<std::endl;
   
-  
+  PTmedian_first  =GetMedian(plots->hBJetPT_Etafirst);
+  PTmedian_second =GetMedian(plots->hBJetPT_Etasecond);
+  PTmedian_third  =GetMedian(plots->hBJetPT_Etathird);
+  PTmedian_fourth =GetMedian(plots->hBJetPT_Etafourth);
+
+
+  std::cout << "TEST2 " <<  GetMedian(plots->hBJetPT_Etafirst) << std::endl; 
+  std::cout << "TEST2 " <<  GetMedian(plots->hBJetPT_Etasecond) << std::endl; 
+  std::cout << "TEST2 " <<  GetMedian(plots->hBJetPT_Etathird) << std::endl; 
+  std::cout << "TEST2 " <<  GetMedian(plots->hBJetPT_Etafourth) << std::endl; 
+
+
   
 }
 
@@ -534,15 +665,21 @@ void Analysis (const char *inputFile, const char *outputFile)
   
   AnalyseEvents(treeReader, plots);
   
-  //  PrintHistograms(result, plots);
+  //PrintHistograms(result, plots);
+
+  TPaveText *pt;
+  pt = result->AddComment(0.14,0.70,0.33,0.86);
+  pt->AddText(Form("Median p_{T}=%.5f", PTmedian_first));
+  result->Attach(plots->hBJetEta_first, pt);
   
   result->Write(outputFile);
-  
+
   cout << "** Exiting..." << endl;
   
   delete plots;
   delete result;
   delete treeReader;
   delete chain;
+<<<<<<< HEAD
 }
 
