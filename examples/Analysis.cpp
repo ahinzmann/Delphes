@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include <utility>
 #include <vector>
 
@@ -10,6 +9,7 @@
 #include "TString.h"
 
 #include "TH2.h"
+#include "TH1.h"
 #include "THStack.h"
 #include "TLegend.h"
 #include "TPaveText.h"
@@ -25,7 +25,7 @@
 #include "ExRootAnalysis/ExRootUtilities.h"
 
 using namespace std;
-
+ 
 //------------------------------------------------------------------------------
 
 // Analysis macro
