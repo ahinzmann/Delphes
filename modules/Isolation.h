@@ -46,21 +46,15 @@ private:
 
   IsolationClassifier *fClassifier; //!
 
-  ExRootFilter *fNeutralFilter;
+  ExRootFilter *fFilter;
 
-  ExRootFilter *fChargedFilter;
-
-  TIterator *fItNeutralIsolationInputArray; //!
-
-  TIterator *fItChargedIsolationInputArray; //!
+  TIterator *fItIsolationInputArray; //!
 
   TIterator *fItCandidateInputArray; //!
 
   TIterator *fItRhoInputArray; //!
 
-  const TObjArray *fNeutralIsolationInputArray; //!
-
-  const TObjArray *fChargedIsolationInputArray; //!
+  const TObjArray *fIsolationInputArray; //!
 
   const TObjArray *fCandidateInputArray; //!
 

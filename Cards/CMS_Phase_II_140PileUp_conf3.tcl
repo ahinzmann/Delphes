@@ -102,7 +102,7 @@ module StatusPidFilter StatusPid {
     set InputArray Delphes/allParticles
     set OutputArray filteredParticles
 
-    set PTMin 1.0
+    set PTMin 0.5
 }
 
 
