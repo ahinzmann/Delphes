@@ -16,6 +16,8 @@
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 
+#include "TLatex.h" 
+
 #include "classes/DelphesClasses.h"
 
 #include "ExRootAnalysis/ExRootTreeReader.h"
@@ -23,20 +25,23 @@
 #include "ExRootAnalysis/ExRootTreeBranch.h"
 #include "ExRootAnalysis/ExRootResult.h"
 #include "ExRootAnalysis/ExRootUtilities.h"
-
+   
+          
 using namespace std;
- 
-//------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+       
 // Analysis macro
 #include "Analysis.C"
 
 //------------------------------------------------------------------------------
-
+  
+double PTmedian_first;   
+   
 int main(int argc, char *argv[])
 {
-  char *appName = "Analysis";
-
+  char *appName = "Analysis";       
+   
   if(argc != 3)
   {
     cout << " Usage : " << appName << " input_file output_file" << endl;
