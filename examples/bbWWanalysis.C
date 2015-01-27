@@ -12,6 +12,11 @@ struct MyPlots
   TH1 *hBJetEta;
   TH1 *hBJetPt;
 
+  TH1 *hBJet1Pt;
+  TH1 *hBJet2Pt;
+  TH1 *hJet1Pt;
+  TH1 *hJet2Pt;
+
   TH1 *hMuonEta;
   TH1 *hMuonPt;
  
@@ -158,8 +163,38 @@ void BookHistograms(ExRootResult *result, MyPlots *plots)
     "Jet eta", "number of jets",
     100, -2.5, 2.5);
   
-  plots->hBJetPt = result->AddHist1D(
-    "hBJetPt", "b-jet p_{T}",
+  plots->hMuonEta = result->AddHist1D(
+    "muonEta", "Muon Eta",
+    "Muon eta", "number of muons",
+    100, -2.5, 2.5);
+  
+  plots->hMuonPt = result->AddHist1D(
+    "hMuonPt", "muon p_{T}",
+    "muon", "number of muons",
+    100, 20., 1000.);
+    
+  plots->hMET = result->AddHist1D(
+    "hMET", "MET",
+    "MET", "number of events",
+    100, 20., 1000.);
+    
+  plots->hBJet1Pt = result->AddHist1D(
+    "hBJet1Pt", "b-jet p_{T}",
+    "p_{T}", "number of jets",
+    100, 20., 1000.);
+    
+  plots->hBJet2Pt = result->AddHist1D(
+    "hBJet2Pt", "b-jet p_{T}",
+    "p_{T}", "number of jets",
+    100, 20., 1000.);
+    
+  plots->hJet1Pt = result->AddHist1D(
+    "hJet1Pt", "jet p_{T}",
+    "p_{T}", "number of jets",
+    100, 20., 1000.);
+    
+  plots->hJet2Pt = result->AddHist1D(
+    "hJet2Pt", "jet p_{T}",
     "p_{T}", "number of jets",
     100, 20., 1000.);
     
@@ -324,6 +359,8 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
   Jet *jet;
   Jet *bjet1;
   Jet *bjet2;
+  Jet *jet1;
+  Jet *jet2;
 
   Electron *ele;
   Electron *ele1;
@@ -332,9 +369,8 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
   Photon *pho;
   Muon *mu;
   Muon *mu1;
-  Muon *mu2;
 
-  MissingET *MET;
+  double MET;
   Track *track;
   Track *LeadingTrack;
   
@@ -356,8 +392,8 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
 
   //Cuts
   Double_t pTMin  = 20;
-  Double_t etaMin = 0.01;
-  Double_t etaMax = 1.6;
+  Double_t etaMin = 0.0001;
+  Double_t etaMax = 5.0;
   Double_t dRmin  = 0.5;
   Double_t PartondRmin  = 0.3;
   
@@ -384,9 +420,9 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
   {
     // Load selected branches with data from specified event
     treeReader->ReadEntry(entry);
-    std::cout<< branchElectron->GetEntriesFast()<<std::endl;
-    std::cout<< branchMuon->GetEntriesFast()<<std::endl;
-    std::cout<< branchPhoton->GetEntriesFast()<<std::endl;
+//    std::cout<< branchElectron->GetEntriesFast()<<std::endl;
+//    std::cout<< branchMuon->GetEntriesFast()<<std::endl;
+//    std::cout<< branchPhoton->GetEntriesFast()<<std::endl;
     // Loop over Electrons
     /*for(je = 0; je < branchElectron->GetEntriesFast(); ++je){
       ele = (Electron*)branchElectron->At(je);
@@ -428,73 +464,54 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
 
     }
     */
-    // Loop over Photons
-     for(jg = 0; jg < branchPhoton->GetEntriesFast(); ++jg){
-      pho = (Photon*)branchPhoton->At(jg);
-      std::cout<<"in photon loop"<<std::endl;
-      if(!(pho->PT>20)) continue;
-      
-      // Constrain photons to barrel and end caps
-      if(!(TMath::Abs(pho->Eta)) < 2.5) continue;
-      if(TMath::Abs(pho->Eta) > 1.44 && TMath::Abs(pho->Eta)< 1.56) continue;
-      
-      Gpass = kTRUE;
-      if(TMath::Abs(pho->Eta)<1.44){
-	if(!(
-	     pho->EhadOverEem < 0.05
-	     && (pho->IsolationVar*pho->PT) < 7.4 + 0.045 * pho->PT
-	     )) Gpass = kFALSE;
-      }
-      else{
-	if(!(
-	     pho->EhadOverEem < 0.05
-	     && (pho->IsolationVar * pho->PT) < 5.2 + 0.04*pho->PT
-	     )) Gpass = kFALSE;
-      }
-      if(!(Gpass)) continue;
-
-      plots->hPhoEta->Fill(pho->Eta);
-      plots->hPhoPt->Fill(pho->PT);
-    }
-     std::cout<<"finished photons"<<std::endl;
     // Loop over Muons
+    mu1=0;
+    // cout << "got before the muons" << endl;
      if(branchMuon->GetEntriesFast()>0){
        for(jm = 0; jm < branchMuon->GetEntriesFast(); ++jm){
 	 mu = (Muon*)branchMuon->At(jm);
 	 
-	 if(!(mu->PT > 10)) continue;
+	 if(!(mu->PT > 20)) continue;
 	 if(!(TMath::Abs(mu->Eta) <2.4)) continue;
 	 
+	 cout << "check isolation" << endl;
 	 if(mu->IsolationVar > 0.15) continue;
 	 //if(TMath::Abs(mu->dz) >0.5) continue;
 	 //if(mu->nPixHits < 1) continue;
 	 //if(mu->nTkHis < 11) continue;
 	 //if(TMath::Abs(dxy) < 2 mm) continue;
 	 
+//	 cout << "after check isolation" << endl;
+
 	 
-	 // Store leading pT muon as mu1 and next leading as mu2
+	 // Store leading pT muon as mu1
 	 if(!mu1){
 	   mu1 = mu;
+	 cout << mu1->PT << endl;
 	 } else if (mu->PT > mu1->PT){
-	   mu2=mu1;
 	   mu1=mu;
-	 } else if (!mu2){
-	   mu2=mu;
-	 } else if (mu->PT > mu2->PT){
-	   mu2=mu;
 	 }
-	 
-	 plots->hMuonEta->Fill(mu->Eta);
-	 plots->hMuonPt->Fill(mu->PT);
-	 
+//	 cout << "after sorting" << endl;
        }    
      }
+     if(!mu1) continue;
+//     cout << "before histo" << endl;
+	 plots->hMuonEta->Fill(mu1->Eta);
+	 plots->hMuonPt->Fill(mu1->PT);
+//     cout << "got after the muons" << endl;
     // Missing Energy
+    MET=-1;
     for(jme = 0; jme < branchMissingET->GetEntriesFast(); ++jme){
-      MET = (MissingET*) branchMissingET->At(jme);
-      if(MET->MET < 25) continue;
+      MET = ((MissingET*) branchMissingET->At(jme))->MET;
     }
+    if(MET < 25) continue;
+	 plots->hMET->Fill(MET);
+    std::cerr << "got to the MET" << std::endl;
     
+    bjet1=0;
+    bjet2=0;
+    jet1=0;
+    jet2=0;
     // Loop over all jets in event
     for(i = 0; i < branchJet->GetEntriesFast(); ++i)
     {
@@ -509,9 +526,10 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
       
       //Define a jet 3-vector
       vJet.SetPtEtaPhi(jet->PT, jet->Eta, jet->Phi);
+
+      cout << "starting jets" << endl;
       
       plots->hJetEta->Fill(jet->Eta);
-      
       
       // Loop over GenParticles
       for(j = 0; j < branchParticle->GetEntriesFast(); ++j)
@@ -544,8 +562,10 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
       if(pdgCodeMax == 0) pdgCodeMax = 21;
       if(pdgCodeMax == -1) pdgCodeMax = 0;
       
-      if( (pdgCodeMax != 21 && pdgCodeMax > 5) || pdgCodeMax == 0 ) continue;
+      //if( (pdgCodeMax != 21 && pdgCodeMax > 5) || pdgCodeMax == 0 ) continue;
       
+//      cout << " after bquarks" << endl;
+      /*
       // If b jet
       if(pdgCodeMax == 5)
       {	  
@@ -595,7 +615,8 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
       
       // calculate Impact parameter
       dxy = ComputeIP(LeadingTrack);
-      
+      */
+//      cout << "before jet sorting" << endl;
       // If b jet
       if(pdgCodeMax == 5)
       {	  
@@ -603,16 +624,19 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
 	// Store leading pT bjet as bjet1 and next leading as bjet2
 	if (!bjet1){
 	  bjet1=jet;
+	  cout << "found bjet" << endl;
 	} else if (jet->PT > bjet1->PT){
 	  bjet2=bjet1;
 	  bjet1=jet;
+	  cout << "found bjet" << endl;
 	} else if (!bjet2){
 	  bjet2=jet;
+	  cout << "found bjet" << endl;
 	} else if (jet->PT > bjet2->PT){
 	  bjet2=jet;
+	  cout << "found bjet" << endl;
 	}
-
-
+        /*
 	plots->hBJetIP->Fill(dxy);  
 	plots->h_bJetLeadingTrackPt->Fill(LeadingTrack->PT);
 	plots->h_bJetTrackMultiplicity->Fill(NrTracks);
@@ -622,11 +646,9 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
       if(IP.size()>2)plots->hBJetIP_third->Fill(IP[2]);  
       
       IP.clear();
-      
-      }
-      
+          
       // If c jet
-      else if(pdgCodeMax == 4)
+      } else if(pdgCodeMax == 4)
       {	  
 	plots->hCJetIP->Fill(dxy);
 	
@@ -635,23 +657,49 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
       if(IP.size()>2)plots->hCJetIP_third->Fill(IP[2]);  
       
       IP.clear();
-      
+          */
       }
       
+      
       // If light jet
-      else if( (pdgCodeMax > 0) && (pdgCodeMax <=3 || pdgCodeMax ==21) )
+      else // if( (pdgCodeMax > 0) && (pdgCodeMax <=3 || pdgCodeMax ==21) )
       {	  
-	plots->hLightJetIP->Fill(dxy);
+	/*plots->hLightJetIP->Fill(dxy);
 	
 	if(IP.size()>0)plots->hLightJetIP_first->Fill(IP[0]);  
     if(IP.size()>1)plots->hLightJetIP_second->Fill(IP[1]);  
     if(IP.size()>2)plots->hLightJetIP_third->Fill(IP[2]);  
       
       IP.clear();
-      
+      */
+	// Store leading pT bjet as jet1 and next leading as jet2
+	if (!jet1){
+	  cout << "found jet" << endl;
+	  jet1=jet;
+	} else if (jet->PT > jet1->PT){
+	  cout << "found jet" << endl;
+	  jet2=jet1;
+	  jet1=jet;
+	} else if (!jet2){
+	  cout << "found jet" << endl;
+	  jet2=jet;
+	} else if (jet->PT > jet2->PT){
+	  cout << "found jet" << endl;
+	  jet2=jet;
+	}
+
       }
       
     }	  
+
+//    cout << "in jet selection" << endl;
+    if (!(bjet1 && bjet2 && jet1 && jet2)) continue;
+    cout << "after jet selection" << endl;
+
+      plots->hJet1Pt->Fill(jet1->PT);
+      plots->hJet2Pt->Fill(jet2->PT);
+      plots->hBJet1Pt->Fill(bjet1->PT);
+      plots->hBJet2Pt->Fill(bjet2->PT);
 
     //  H->bb
     if(bjet1 && bjet2){  
@@ -666,14 +714,14 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
       vElectron2.SetPtEtaPhi(ele2->PT, ele2->Eta, ele2->Phi);
 
     }
-    if(mu1 && mu2){
+    if(mu1){
       vMuon1.SetPtEtaPhi(mu1->PT, mu1->Eta, mu1->Phi);
-      vMuon2.SetPtEtaPhi(mu2->PT, mu2->Eta, mu2->Phi);
     }
 
 
 
   }
+  /*
   plots->hBJetIP->Scale(1./plots->hBJetIP->Integral());
   plots->hCJetIP->Scale(1./plots->hCJetIP->Integral());
   plots->hLightJetIP->Scale(1./plots->hLightJetIP->Integral());
@@ -686,6 +734,8 @@ void AnalyseEvents(ExRootTreeReader *treeReader, MyPlots *plots)
   Double_t median = GetMedian(plots->h_bJetTrackPt);
   
   std::cout<<"Median b-jetTrackPt"<<median<<std::endl;
+  */
+  
   
   
 }

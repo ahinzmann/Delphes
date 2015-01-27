@@ -6,7 +6,7 @@
 #include "TSystem.h"
 #include "TApplication.h"
 
-#include "TString.h"
+#include "TString.h" 
 
 #include "TH2.h"
 #include "TH1.h"
@@ -30,7 +30,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 
 // Analysis macro
-#include "Analysis.C"
+#include "bbWWanalysis.C"
 
 //------------------------------------------------------------------------------
 

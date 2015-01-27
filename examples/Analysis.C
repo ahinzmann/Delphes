@@ -680,6 +680,4 @@ void Analysis (const char *inputFile, const char *outputFile)
   delete result;
   delete treeReader;
   delete chain;
-<<<<<<< HEAD
 }
-

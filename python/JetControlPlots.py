@@ -1,4 +1,4 @@
-from BaseControlPlots import BaseControlPlots
+from DelphesAnalysis.BaseControlPlots import BaseControlPlots
 
 # Requirements:
 # event.jets
