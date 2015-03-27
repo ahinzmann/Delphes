@@ -54,7 +54,8 @@ void ConvertInput(fwlite::Event &event, Long64_t eventCounter, ExRootTreeBranch 
     lheEvt = static_cast<LHEFEvent *>(branch->NewEntry());
 
     lheEvt->Number = eventCounter;
-    lheEvt->Weight = lheEvtInfo->originalXWGTUP();
+    //lheEvt->Weight = lheEvtInfo->originalXWGTUP();
+    lheEvt->Weight = 1.0;
     lheEvt->ProcessID = ((lhef::HEPEUP)lheEvtInfo->hepeup()).IDPRUP;
     lheEvt->ScalePDF = ((lhef::HEPEUP)lheEvtInfo->hepeup()).IDPRUP;
     lheEvt->AlphaQED = ((lhef::HEPEUP)lheEvtInfo->hepeup()).SCALUP;
@@ -124,8 +125,9 @@ void ConvertInput(fwlite::Event &event, Long64_t eventCounter, ExRootTreeBranch 
 
         candidate->Momentum.SetPxPyPzE(px, py, pz, e);
 
-        candidate->Position.SetXYZT(x, y, z, 0.0);
-
+        //candidate->Position.SetXYZT(x, y, z, 0.0);
+	candidate->Position.SetXYZT(x*10, y*10, z*10, 0.0); ////test yong
+ 
         allParticleOutputArray->Add(candidate);
 
         if(!pdgParticle) continue;
@@ -190,7 +192,7 @@ int main(int argc, char *argv[])
   
   try
     {
-      outputFile = TFile::Open(argv[2], "CREATE");
+      outputFile = TFile::Open(argv[2], "RECREATE");
       
       if(outputFile == NULL)
         {
