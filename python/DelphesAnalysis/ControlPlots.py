@@ -104,7 +104,7 @@ def runAnalysis(path, levels, outputname="controlPlots.root", Njobs=1, jobNumber
   elif os.path.isfile(path):
     files=[path]
   else:
-    files=[]
+    files=[path]
 
   # output
   output = ROOT.TFile(outputname, "RECREATE")

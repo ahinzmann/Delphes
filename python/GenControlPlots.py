@@ -39,12 +39,12 @@ class GenControlPlots(BaseControlPlots):
       result["HWWEta"] = []
       result["HWWPhi"] = []
       for particle in event.particles:
-          if abs(particle.PID) == 24:
+          if abs(particle.PID) == 24 and particle.D1>=0 and particle.D1<len(event.particles) and event.particles[particle.D1]:
 	     if abs(event.particles[particle.D1].PID) in [11,13,15]:
 	       nLeptons+=1
 	     if abs(event.particles[particle.D1].PID) in [1,2,3,4]:
 	       nLquarks+=2
-          if abs(particle.PID) == 25:
+          if abs(particle.PID) == 25 and particle.D1>=0 and particle.D1<len(event.particles) and event.particles[particle.D1]:
 	     if abs(event.particles[particle.D1].PID) in [5]:
 	        nBquarks+=2
                 result["HbbPt"].append( particle.PT )
