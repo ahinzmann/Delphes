@@ -152,11 +152,15 @@ class BaseControlPlots:
       else:
         self.fillRDS(data)
 
-    def endJob(self):
+    def endJob(self,level=""):
       """Save and close."""
       if self._mode=="plots":
         self._dir.cd()
         self._dir.Write()
+        c=ROOT.TCanvas("c","c",200,200)
+	for h in self._h_vector.values():
+	    h.Draw()
+	    c.SaveAs(configuration.defaultFilename+"_"+str(level)+"_"+self._dir.GetName()+"_"+h.GetName()+".pdf")
         if not self._f is None:
           self._f.Close()
       else:

@@ -10,7 +10,7 @@
 #   event.jets
 
 # the list of category names
-categoryNames = [ "GenLevel", "MuonChannel/4Jets", "ElectronChannel/4Jets" ]
+categoryNames = [ "GenLevel", "Lepton4Jets" ]
 
 def eventCategory(event):
   """Check analysis requirements for various steps
@@ -52,8 +52,6 @@ def isInCategory(category, categoryData):
   if category==0:
     return categoryData[3]==True
   elif category==1:
-    return categoryData[0]==True and categoryData[2]==True and categoryData[3]==True
-  elif category==2:
-    return categoryData[1]==True and categoryData[2]==True and categoryData[3]==True
+    return (categoryData[0]==True or categoryData[1]==True) and categoryData[2]==True and categoryData[3]==True
   else:
     return False

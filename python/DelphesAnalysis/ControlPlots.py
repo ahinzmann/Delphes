@@ -176,7 +176,7 @@ def runAnalysis(path, levels, outputname="controlPlots.root", Njobs=1, jobNumber
   if configuration.runningMode=="plots":
     for level in levels:
      for cp in controlPlots[level]: 
-       cp.endJob()
+       cp.endJob(level)
   else:
    for cp in controlPlots: 
      cp.endJob()

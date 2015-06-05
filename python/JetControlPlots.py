@@ -14,39 +14,39 @@ class JetControlPlots(BaseControlPlots):
 
     def beginJob(self):
       # declare histograms
-      self.add("Njets","Jet multiplicity",10,0,10)
-      self.add("Jet1Pt","Jet Pt",100,0,200)
-      self.add("Jet1Eta","Jet Eta",100,-5,5)
-      self.add("Jet1Phi","Jet Phi",64,-3.2,3.2)
-      self.add("Jet2Pt","Jet Pt",100,0,200)
-      self.add("Jet2Eta","Jet Eta",100,-5,5)
-      self.add("Jet2Phi","Jet Phi",64,-3.2,3.2)
-      self.add("Jet3Pt","Jet Pt",100,0,200)
-      self.add("Jet3Eta","Jet Eta",100,-5,5)
-      self.add("Jet3Phi","Jet Phi",64,-3.2,3.2)
-      self.add("Jet4Pt","Jet Pt",100,0,200)
-      self.add("Jet4Eta","Jet Eta",100,-5,5)
-      self.add("Jet4Phi","Jet Phi",64,-3.2,3.2)
-      self.add("Nbjets","B Jet multiplicity",10,0,10)
-      self.add("BJet1Pt","B Jet Pt",100,0,200)
-      self.add("BJet1Eta","B Jet Eta",100,-5,5)
-      self.add("BJet1Phi","B Jet Phi",64,-3.2,3.2)
-      self.add("BJet2Pt","B Jet Pt",100,0,200)
-      self.add("BJet2Eta","B Jet Eta",100,-5,5)
-      self.add("BJet2Phi","B Jet Phi",64,-3.2,3.2)
-      self.add("BJet3Pt","B Jet Pt",100,0,200)
-      self.add("BJet3Eta","B Jet Eta",100,-5,5)
-      self.add("BJet3Phi","B Jet Phi",64,-3.2,3.2)
-      self.add("BJet4Pt","B Jet Pt",100,0,200)
-      self.add("BJet4Eta","B Jet Eta",100,-5,5)
-      self.add("BJet4Phi","B Jet Phi",64,-3.2,3.2)
-      self.add("MET","MET",100,0,200)
-      self.add("METphi","MET phi",64,-3.2,3.2)
+      self.add("Njets",";N jets (p_{T}>30 GeV);N",10,0,10)
+      self.add("Jet1Pt",";Jet Pt;N",100,0,500)
+      self.add("Jet1Eta",";Jet Eta;N",100,-5,5)
+      self.add("Jet1Phi",";Jet Phi;N",64,-3.2,3.2)
+      self.add("Jet2Pt",";Jet Pt;N",100,0,500)
+      self.add("Jet2Eta",";Jet Eta;N",100,-5,5)
+      self.add("Jet2Phi",";Jet Phi;N",64,-3.2,3.2)
+      self.add("Jet3Pt",";Jet Pt;N",100,0,500)
+      self.add("Jet3Eta",";Jet Eta;N",100,-5,5)
+      self.add("Jet3Phi",";Jet Phi;N",64,-3.2,3.2)
+      self.add("Jet4Pt",";;Jet Pt;N",100,0,500)
+      self.add("Jet4Eta",";Jet Eta;N",100,-5,5)
+      self.add("Jet4Phi",";Jet Phi;N",64,-3.2,3.2)
+      self.add("Nbjets",";N b-jets (pT>30 GeV);N",10,0,10)
+      self.add("BJet1Pt",";b-jet Pt;N",100,0,500)
+      self.add("BJet1Eta",";b-jet Eta;N",100,-5,5)
+      self.add("BJet1Phi",";b-jet Phi;N",64,-3.2,3.2)
+      self.add("BJet2Pt",";b-jet Pt;N",100,0,500)
+      self.add("BJet2Eta",";b-jet Eta;N",100,-5,5)
+      self.add("BJet2Phi",";b-jet Phi;N",64,-3.2,3.2)
+      self.add("BJet3Pt",";b-jet Pt;N",100,0,500)
+      self.add("BJet3Eta",";b-jet Eta;N",100,-5,5)
+      self.add("BJet3Phi",";b-jet Phi;N",64,-3.2,3.2)
+      self.add("BJet4Pt",";b-jet Pt;N",100,0,500)
+      self.add("BJet4Eta",";b-jet Eta;N",100,-5,5)
+      self.add("BJet4Phi",";b-jet Phi;N",64,-3.2,3.2)
+      self.add("MET",";MET;N",100,0,500)
+      self.add("METphi",";MET phi;N",64,-3.2,3.2)
 
     def process(self, event):
       #get information
       result = { }
-      result["Njets"]  = event.jets.GetEntries()
+      result["Njets"]  = len([j for j in event.jets if j.PT>30])
       result["Jet1Pt"] = [ ]
       result["Jet1Eta"] = [ ]
       result["Jet1Phi"] = [ ]
@@ -79,7 +79,7 @@ class JetControlPlots(BaseControlPlots):
       for jet in event.jets:
         if jet.BTag:
           bjets+=[jet]
-      result["Nbjets"] = len(bjets)
+      result["Nbjets"] = len([bj for bj in bjets if bj.PT>30])
       result["BJet1Pt"] = [ ]
       result["BJet1Eta"] = [ ]
       result["BJet1Phi"] = [ ]

@@ -13,21 +13,21 @@ class LeptonControlPlots(BaseControlPlots):
 
     def beginJob(self):
       # declare histograms
-      self.add("NMuons","Muon multiplicity",10,0,10)
-      self.add("Muon1Pt","Muon Pt",100,0,200)
-      self.add("Muon1Eta","Muon Eta",50,-2.5,2.5)
-      self.add("Muon2Pt","Muon Pt",100,0,200)
-      self.add("Muon2Eta","Muon Eta",50,-2.5,2.5)
-      self.add("NElectrons","Electron multiplicity",10,0,10)
-      self.add("Electron1Pt","Electron Pt",100,0,200)
-      self.add("Electron1Eta","Electron Eta",50,-2.5,2.5)
-      self.add("Electron2Pt","Electron Pt",100,0,200)
-      self.add("Electron2Eta","Electron Eta",50,-2.5,2.5)
+      self.add("NMuons",";N muons (p_{T}>20 GeV);N",10,0,10)
+      self.add("Muon1Pt",";Muon Pt;N",100,0,500)
+      self.add("Muon1Eta",";Muon Eta;N",50,-2.5,2.5)
+      self.add("Muon2Pt",";Muon Pt;N",100,0,500)
+      self.add("Muon2Eta",";Muon Eta;N",50,-2.5,2.5)
+      self.add("NElectrons",";N electrons (p_{T}>20 GeV);N",10,0,10)
+      self.add("Electron1Pt",";Electron Pt;N",100,0,500)
+      self.add("Electron1Eta",";Electron Eta;N",50,-2.5,2.5)
+      self.add("Electron2Pt",";Electron Pt;N",100,0,500)
+      self.add("Electron2Eta",";Electron Eta;N",50,-2.5,2.5)
 
     def process(self, event):
       #get information
       result = { }
-      result["NMuons"] = event.muons.GetEntries()
+      result["NMuons"] = len([m for m in event.muons if m.PT>20])
       result["Muon1Pt"] = [ ]
       result["Muon1Eta"] = [ ]
       result["Muon2Pt"] = [ ]
@@ -38,7 +38,7 @@ class LeptonControlPlots(BaseControlPlots):
       if event.muons.GetEntries()>1:
         result["Muon2Pt"].append(event.muons[1].PT)
         result["Muon2Eta"].append(event.muons[1].Eta)
-      result["NElectrons"] = event.electrons.GetEntries()
+      result["NElectrons"] = len([e for e in event.electrons if e.PT>20])
       result["Electron1Pt"] = [ ]
       result["Electron1Eta"] = [ ]
       result["Electron2Pt"] = [ ]
