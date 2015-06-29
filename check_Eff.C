@@ -111,6 +111,19 @@ void check_Eff(TString inputfile = "testAnalysis_smear1_cond0.root", TString pos
   cout<<"effc " << effc[indmin]<<"+/-"<<effcErr[indmin]<<endl;
   cout<<"effl " << effl[indmin]<<"+/-"<<efflErr[indmin]<<endl;
 
+  float dmin1 = 0.1; 
+  int indmin1 = 0; 
+  for(int j=0; j<n; j++){
+    if(fabs( effl[j]-0.03)<dmin1){
+      dmin1 = fabs(effl[j]-0.03);
+      indmin1 = j; 
+    }
+  }
+  cout<<"fake working point 0.03  cut " << cuts[indmin1]<<endl;
+  cout<<"effb " << effb[indmin1]<<"+/-"<<effbErr[indmin1]<<endl;
+  cout<<"effc " << effc[indmin1]<<"+/-"<<effcErr[indmin1]<<endl;
+  cout<<"effl " << effl[indmin1]<<"+/-"<<efflErr[indmin1]<<endl;
+
 
   TGraphErrors *g0 = new TGraphErrors(n, effb, rejl, effbErr, rejlErr);
   g0->Draw("ap");
