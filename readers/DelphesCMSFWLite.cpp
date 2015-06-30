@@ -50,7 +50,8 @@ void ConvertInput(fwlite::Event &event, Long64_t eventCounter, ExRootTreeBranch 
 
     fwlite::Handle<LHEEventProduct> lheEvtInfo;
     lheEvtInfo.getByLabel(event, "source");
-
+    if(lheEvtInfo.isValid())
+    {
     lheEvt = static_cast<LHEFEvent *>(branch->NewEntry());
 
     lheEvt->Number = eventCounter;
@@ -60,7 +61,7 @@ void ConvertInput(fwlite::Event &event, Long64_t eventCounter, ExRootTreeBranch 
     lheEvt->ScalePDF = ((lhef::HEPEUP)lheEvtInfo->hepeup()).IDPRUP;
     lheEvt->AlphaQED = ((lhef::HEPEUP)lheEvtInfo->hepeup()).SCALUP;
     lheEvt->AlphaQCD = ((lhef::HEPEUP)lheEvtInfo->hepeup()).AQCDUP;
-
+    }
     fwlite::Handle< vector< reco::GenParticle > > handleParticle;
     vector< reco::GenParticle >::const_iterator itParticle;
 
