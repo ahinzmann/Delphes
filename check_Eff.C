@@ -33,18 +33,25 @@ void check_Eff(TString inputfile = "testAnalysis_smear1_cond0.root", TString pos
   TFile *f1 = new TFile(inputfile,"read");
 
 
-  // TH1F *hb = (TH1F*)f1->Get("th1f_bjet_dxy_highestpt");
-  // TH1F *hc = (TH1F*)f1->Get("th1f_cjet_dxy_highestpt");
-  // TH1F *hl = (TH1F*)f1->Get("th1f_ljet_dxy_highestpt");
+  TH1F *hbpt = (TH1F*)f1->Get("th1f_bjet_dxy_highestpt");
+  TH1F *hcpt = (TH1F*)f1->Get("th1f_cjet_dxy_highestpt");
+  TH1F *hlpt = (TH1F*)f1->Get("th1f_ljet_dxy_highestpt");
   
   TH1F *hb = (TH1F*)f1->Get("th1f_bjet_dxy_highest");
   TH1F *hc = (TH1F*)f1->Get("th1f_cjet_dxy_highest");
   TH1F *hl = (TH1F*)f1->Get("th1f_ljet_dxy_highest");
    
-   // TH1F *hb = (TH1F*)f1->Get("th1f_bjet_dxy_2ndhighest");
-   // TH1F *hc = (TH1F*)f1->Get("th1f_cjet_dxy_2ndhighest");
-   // TH1F *hl = (TH1F*)f1->Get("th1f_ljet_dxy_2ndhighest");
+  TH1F *hb2 = (TH1F*)f1->Get("th1f_bjet_dxy_2ndhighest");
+  TH1F *hc2 = (TH1F*)f1->Get("th1f_cjet_dxy_2ndhighest");
+  TH1F *hl2 = (TH1F*)f1->Get("th1f_ljet_dxy_2ndhighest");
 
+  TH1F *hb3 = (TH1F*)f1->Get("th1f_bjet_dxy_3rdhighest");
+  TH1F *hc3 = (TH1F*)f1->Get("th1f_cjet_dxy_3rdhighest");
+  TH1F *hl3 = (TH1F*)f1->Get("th1f_ljet_dxy_3rdhighest");
+
+  TH1F *hbptdxy = (TH1F*)f1->Get("th1f_bjet_pttrk_dxyhighest");
+  TH1F *hbptpt = (TH1F*)f1->Get("th1f_bjet_pttrk_highestpt");
+   
   
   TFile *fnew = new TFile("check_Eff.root","recreate");
 
@@ -85,7 +92,7 @@ void check_Eff(TString inputfile = "testAnalysis_smear1_cond0.root", TString pos
       effl[n] = eff;
       efflErr[n] = effE;
 
-      rejl[n] = 1-eff;
+      rejl[n] = eff;
       rejlErr[n] = effE;
 
       cuts[n] = cut; 
@@ -135,7 +142,7 @@ void check_Eff(TString inputfile = "testAnalysis_smear1_cond0.root", TString pos
   // 			 ){
 
 
-  plot_oneTGraphErr(g0,"b jet efficiency","light jet rejection",0.6,1,0,0.6,1,1,"plots","effbl"+postfix,0.2,0.8,"");
+  plot_oneTGraphErr(g0,"b jet efficiency","light jet efficiency",0.3,1,1,0.001,1,1,"plots","effbl"+postfix,0.2,0.8,"");
   
 
   TGraphErrors *g1 = new TGraphErrors(n, cuts,effb, cutsErr, effbErr);
@@ -167,6 +174,28 @@ void check_Eff(TString inputfile = "testAnalysis_smear1_cond0.root", TString pos
   hl->Rebin(2);
   plot_multiHist1General("d_{xy} (cm)","Fraction of events",-0.2,0.2,0,0,1.2,"b jet","c jet","light jet", "","plots","dxy"+postfix,0.2,0.9,"",hb,hc,hl,0,9,0.67,0.75,0.93,0.93);
   
+  hb2->Rebin(2);
+  hc2->Rebin(2);
+  hl2->Rebin(2);
+  plot_multiHist1General("d_{xy} (cm)","Fraction of events",-0.2,0.2,0,0,1.2,"b jet","c jet","light jet", "","plots","dxy2"+postfix,0.2,0.9,"",hb2,hc2,hl2,0,9,0.67,0.75,0.93,0.93);
+
+  std::cerr << hb << std::endl;
+  std::cerr << hb2 << std::endl;
+  hb3->Rebin(2);
+  hc3->Rebin(2);
+  hl3->Rebin(2);
+  plot_multiHist1General("d_{xy} (cm)","Fraction of events",-0.2,0.2,0,0,1.2,"b jet","c jet","light jet", "","plots","dxy3"+postfix,0.2,0.9,"",hb3,hc3,hl3,0,9,0.67,0.75,0.93,0.93);
+
+  hbpt->Rebin(2);
+  hcpt->Rebin(2);
+  hlpt->Rebin(2);
+  plot_multiHist1General("d_{xy} (cm)","Fraction of events",-0.2,0.2,0,0,1.2,"b jet","c jet","light jet", "","plots","dxypt"+postfix,0.2,0.9,"",hbpt,hcpt,hlpt,0,9,0.67,0.75,0.93,0.93);
+
+  hbptpt->Rebin(2);
+  plot_oneHist1General(hbptpt,"p_{T} (GeV)","Fraction of events",0,100,0,0,1.2,"plots","ptpt",0.2,0.9,"ptpt"+postfix);
+
+  hbptdxy->Rebin(2);
+  plot_oneHist1General(hbptdxy,"p_{T} (GeV)","Fraction of events",0,100,0,0,1.2,"plots","ptdxy",0.2,0.9,"ptdxy"+postfix);
 
 
   fnew->Write();

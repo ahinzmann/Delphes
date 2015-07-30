@@ -89,8 +89,13 @@ int main(int argc, char *argv[]){
   makeTH1F("cjet_dxy_2ndhighest",400,-0.1,0.1);
   makeTH1F("ljet_dxy_2ndhighest",400,-0.1,0.1);
 
+  makeTH1F("bjet_dxy_3rdhighest",400,-0.1,0.1);
+  makeTH1F("cjet_dxy_3rdhighest",400,-0.1,0.1);
+  makeTH1F("ljet_dxy_3rdhighest",400,-0.1,0.1);
+
 
   makeTH1F("bjet_pttrk_dxyhighest",100,0,100);
+  makeTH1F("bjet_pttrk_highestpt",100,0,100);
 
   makeTH1F("trk_vx_dtrue",100,-1,1);
   makeTH1F("trk_vy_dtrue",100,-1,1);
@@ -186,33 +191,43 @@ int main(int argc, char *argv[]){
       if(ntrk>0){
 	///highest dxy 
 	///highest pt 
-	float ip_highestpt = 0;
-	float ip_highest = 0; 
-	int ind_highestip = 0; 
+	int ind_highestpt = 0;
+	float ip_highest = -999;
+	float ip_highestpt = -999;
+	int ind_highestip = 0;
 	float highestpt = 0; 
 	vector<pair<float,int> > allips; 
 	for(int j=0; j< ntrk; j++){
 	  int indt = indtrk[j];
 	  Track *trk = (Track*)branchTrack->At(indt);
-	  float ip = ComputeTrackIP(trk);
+	  float ip = fabs(ComputeTrackIP(trk));
 	  //	  cout<<" ip " <<ip << endl; 
 	  if(doSmearDxy) ip = smeareddxy(trk->PT, trk->Eta, ip, condition/10);
 	  //cout<<" ip_smeared " << ip <<endl;
+	  TVector3 trkdir;
+	  trkdir.SetXYZ(trk->X,trk->Y,0);
+	  TVector3 jetdir;
+	  jetdir.SetPtEtaPhi(jet->PT,jet->Eta,jet->Phi);
+	  float sign = trkdir.Dot(jetdir)/fabs(trkdir.Dot(jetdir));
+	  //std::cerr << sign << " " << trkdir.X() << " " << trkdir.Y() << " " << jetdir.X() << " " << jetdir.Y() << std::endl;
+	  ip*=sign; //signed IP
 	  allips.push_back( make_pair(ip,indt));
 
-	  if (fabs(ip) > ip_highest){
-	    ip_highest = fabs(ip);
+	  if (ip > ip_highest){ //fabs???
+	    ip_highest = ip; //fabs???
 	    ind_highestip = indt; 
 	  }
 	  if( trk->PT > highestpt){
 	    highestpt = trk->PT; 
+	    ind_highestpt = indt; 
 	    ip_highestpt = ip; 
 	  }
 	}
 
-	Track *trk = (Track*)branchTrack->At(ind_highestip);//highest pt
+	Track *trk = (Track*)branchTrack->At(ind_highestip);//highest dxy
+	Track *trkhighpt = (Track*)branchTrack->At(ind_highestpt);//highest pt
 
-	sort(allips.begin(),allips.end(),sort_descabs);
+	sort(allips.begin(),allips.end(),sort_desc); //descabs???
 	float ip = allips[0].first; 
 
 	if( ind_highestip != allips[0].second){
@@ -222,18 +237,26 @@ int main(int argc, char *argv[]){
 	if( int(allips.size()) >1){
 	  ip2nd = allips[1].first;
 	}
+	float ip3rd = allips[0].first; 
+	if( int(allips.size()) >2){
+	  ip3rd = allips[2].first;
+	}
 
 	if(isbjet) {
 	  fillTH1F("bjet_dxy_2ndhighest",ip2nd);
+	  fillTH1F("bjet_dxy_3rdhighest",ip3rd);
 	  fillTH1F("bjet_dxy_highestpt",ip_highestpt);
 	  fillTH1F("bjet_dxy_highest",ip);
 	  fillTH1F("bjet_pttrk_dxyhighest",trk->PT);
+	  fillTH1F("bjet_pttrk_highestpt",trkhighpt->PT);
 	}else if(iscjet){
 	  fillTH1F("cjet_dxy_2ndhighest",ip2nd);
+	  fillTH1F("cjet_dxy_3rdhighest",ip3rd);
 	  fillTH1F("cjet_dxy_highestpt",ip_highestpt);
 	  fillTH1F("cjet_dxy_highest",ip);
 	}else if(isljet){
 	  fillTH1F("ljet_dxy_2ndhighest",ip2nd);
+	  fillTH1F("ljet_dxy_3rdhighest",ip3rd);
 	  fillTH1F("ljet_dxy_highestpt",ip_highestpt);
 	  fillTH1F("ljet_dxy_highest",ip);
 	}
