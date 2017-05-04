@@ -1292,7 +1292,7 @@ module TreeWriter TreeWriter {
 
   add Branch PuppiJetFinder/jets PuppiJet Jet
   
-  add Branch TrackMerger/tracks Track Track
+#  add Branch TrackMerger/tracks Track Track
 
   set OffsetFromModifyBeamSpot 1
 
